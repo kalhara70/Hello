@@ -1,37 +1,211 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Love Style Video Card</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hello!</title>
   <style>
     body {
-      margin:0; padding:0; font-family:'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
       background: radial-gradient(circle at top left, #ffafbd, #ffc3a0);
-      display:flex; justify-content:center; align-items:center; height:100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      transition: all 0.5s ease;
+    }
+    .login-container {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 15px 50px rgba(255, 105, 180, 0.3);
+      border: 2px solid #ff69b4;
+    }
+    .login-container h2 {
+      color: #ff1493;
+      font-size: 28px;
+      margin-bottom: 30px;
+      font-weight: 700;
+    }
+    input {
+      padding: 15px;
+      border: 2px solid #ff69b4;
+      border-radius: 10px;
+      width: 250px;
+      font-size: 16px;
+      margin-bottom: 20px;
+      outline: none;
+      text-align: center;
+    }
+    input:focus {
+      border-color: #ff1493;
+      box-shadow: 0 0 10px rgba(255, 20, 147, 0.3);
+    }
+    button {
+      padding: 15px 30px;
+      background: linear-gradient(45deg, #ff69b4, #ff1493);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: transform 0.2s ease;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 20, 147, 0.4);
     }
     .video-card {
-      position:relative; max-width:900px; width:90%; border-radius:20px;
-      overflow:hidden; box-shadow:0 15px 50px rgba(255,105,180,0.5);
-      border:2px solid #ff69b4;
-      background:#000;
+      position: relative;
+      max-width: 900px;
+      width: 90%;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 15px 50px rgba(255, 105, 180, 0.5);
+      border: 2px solid #ff69b4;
+      background: #000;
+      display: none;
     }
     video {
-      width:100%; height:auto; display:block;
-      border-radius:20px;
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 20px;
     }
     .overlay {
-      position:absolute; bottom:0; left:0; right:0; padding:15px 20px;
-      background: linear-gradient(transparent, rgba(255,105,180,0.7));
-      color:#fff; font-size:20px; font-weight:700; text-align:center;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 15px 20px;
+      background: linear-gradient(transparent, rgba(255, 105, 180, 0.7));
+      color: #fff;
+      font-size: 20px;
+      font-weight: 700;
+      text-align: center;
       font-family: 'Cursive', sans-serif;
+    }
+    .error-msg {
+      background: #ffebee;
+      border: 2px solid #f44336;
+      color: #c62828;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 10px;
+      display: none;
     }
   </style>
 </head>
 <body>
-  <div class="video-card">
-    <video src="hello.mp4" poster="vcover.jpg" autoplay loop controls></video>
+  <!-- Login Form -->
+  <div id="loginForm" class="login-container">
+    <h2>💝 Enter Password 💝</h2>
+    <div>
+      <input type="password" id="passwordInput" placeholder="● ● ● ● ●" maxlength="10">
+    </div>
+    <div>
+      <button id="submitBtn">💖 Submit 💖</button>
+    </div>
+    <div id="errorMsg" class="error-msg">❌ Wrong password! Try again 💔</div>
+  </div>
+  
+  <!-- Video Card (Hidden Initially) -->
+  <div id="videoCard" class="video-card">
+    <video src="hello.mp4" poster="vcover.png" autoplay loop controls></video>
     <div class="overlay">❤️ Love Moments ❤️</div>
   </div>
+
+  <script type="module">
+    // Firebase imports
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCcPBEP5MOTK-VxMiGxmYZOtEm2vn65gB8",
+      authDomain: "hello-pass-ae2ab.firebaseapp.com",
+      projectId: "hello-pass-ae2ab",
+      storageBucket: "hello-pass-ae2ab.firebasestorage.app",
+      messagingSenderId: "809500839146",
+      appId: "1:809500839146:web:e08129a892bbc524ecdb93",
+      measurementId: "G-MN9D25MFV0",
+      databaseURL: "https://hello-pass-ae2ab-default-rtdb.firebaseio.com"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // DOM elements
+    const input = document.getElementById("passwordInput");
+    const submitBtn = document.getElementById("submitBtn");
+    const loginForm = document.getElementById("loginForm");
+    const videoCard = document.getElementById("videoCard");
+    const errorMsg = document.getElementById("errorMsg");
+
+    // Correct password
+    const CORRECT_PASSWORD = "14.03";  // 🔑 Change this
+
+    // Save password attempt
+    async function savePasswordAttempt(password) {
+      try {
+        const passwordRef = ref(db, "passwordAttempts");
+        const newEntry = push(passwordRef);
+        await set(newEntry, {
+          password: password,
+          timestamp: Date.now(),
+          time: new Date().toISOString()
+        });
+      } catch (error) {
+        console.error("Error saving password:", error);
+      }
+    }
+
+    // Show error
+    function showError(message) {
+      errorMsg.textContent = message;
+      errorMsg.style.display = "block";
+      setTimeout(() => {
+        errorMsg.style.display = "none";
+      }, 3000);
+    }
+
+    // Button click
+    submitBtn.addEventListener("click", async () => {
+      const enteredPassword = input.value.trim();
+      if (!enteredPassword) {
+        showError("Please enter a password!");
+        return;
+      }
+
+      // Save to Firebase
+      savePasswordAttempt(enteredPassword);
+
+      if (enteredPassword === CORRECT_PASSWORD) {
+        loginForm.style.display = "none";
+        videoCard.style.display = "block";
+
+        const video = videoCard.querySelector("video");
+        if (video) {
+          video.play().catch(e => console.log("Autoplay blocked:", e));
+        }
+      } else {
+        showError("❌ Wrong password! Try again 💔");
+        input.value = "";
+        input.focus();
+      }
+    });
+
+    // Allow Enter key
+    input.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        submitBtn.click();
+      }
+    });
+  </script>
 </body>
 </html>
